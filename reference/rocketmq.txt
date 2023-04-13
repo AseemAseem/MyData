@@ -1,0 +1,31 @@
+(rocketmq)
+
+//发送
+	 SendResult sendResult = rocketMQTemplate.syncSend(MqConstant.ORDER_WX_PAY_SUCCESS_TOPIC, payload);
+//消费
+@RocketMQMessageListener(consumerGroup = MqConstant.ORDER_WX_PAY_SUCCESS_TOPIC + "-${spring.application.name}", topic = MqConstant.ORDER_WX_PAY_SUCCESS_TOPIC)
+
+//配置
+
+<dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>2.2.3</version>
+</dependency>
+
+rocketmq:
+  name-server: xxx.xxx.xxx.xxx:50027
+  producer:
+    group: ${spring.application.name}
+    retry-times-when-send-failed: 3
+    retry-times-when-send-async-failed: 3
+    retry-next-server: true
+    send-message-timeout: 10000
+
+
+
+
+
+
+
+

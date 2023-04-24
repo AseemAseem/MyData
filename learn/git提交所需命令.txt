@@ -1,9 +1,12 @@
 //git
-先解除ssl验证
-git config --global http.sslVerify "false"
 
 git add .
+git status
 git commit -m “note”
+
+先解除ssl验证再push
+git config --global http.sslVerify "false"
+
 git push
 
 再恢复ssl验证

@@ -11,5 +11,7 @@ redis的key不能太长，否则会缓存失败。
 //订单号、退货单号等，制定好规则，承载更多信息，有助于简化sql提升性能
 //关于网关：前后台各用一个网关更好
 //关于高并发下数据修改问题，比如大量mq消费，修改记录时判断原状态要与当前状态一致，类似于乐观锁，例如：update set name = xxx where id = 1 and status = oldStatus;
-
+//多数据源，mq,rocketmq,mybatis plus，修改售后字段status修改成功却返回失败，boolean update = omsAfterSalesService.update(uw);
+原因：sql修改status成功后，其他地方抛异常了，又没加事务注解，mq消费失败，mq重新消费，再次执行sql此时status已修改过，所以修改后返回false了。
+总结：没加事务注解，代码其他地方有异常
 

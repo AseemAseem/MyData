@@ -1,3 +1,4 @@
+//文档优先在github官方项目看
 //jetcache:key的组成：area+":"+name+key。
 没指定key时，会使用 参数数组 的json结构当成key，没指定key且参数太多，redis会存不下，缓存失败。
 key过长问题，实在是简化不了参数的话，我觉得可以手动加个md5属性放方法的参数中，当做key，可以不会过长。
@@ -14,4 +15,15 @@ redis的key不能太长，否则会缓存失败。
 //多数据源，mq,rocketmq,mybatis plus，修改售后字段status修改成功却返回失败，boolean update = omsAfterSalesService.update(uw);
 原因：sql修改status成功后，其他地方抛异常了，又没加事务注解，mq消费失败，mq重新消费，再次执行sql此时status已修改过，所以修改后返回false了。
 总结：没加事务注解，代码其他地方有异常
-
+//由于没有where子句，因此order by 不会走索引	添加where子句，如where id>0，这样强制查询走索引
+//DELETE语句需增加limit关键字，指定删除的行数，通过循环删除的方式，实现全量删除
+1、降低写错SQL的代价
+清空表数据可不是小事情，一个手抖全没了，删库跑路？如果加limit，删错也只是丢失部分数据，可以通过binlog日志快速恢复的。
+2、SQL效率很可能更高
+SQL中加了limit 1，如果第一条就命中目标return， 没有limit的话，还会继续执行扫描表。
+3、避免长事务
+delete执行时,如果age加了索引，MySQL会将所有相关的行加写锁和间隙锁，所有执行相关行会被锁住，如果删除数量大，会直接影响相关业务无法使用。
+4、数据量大的话，容易把CPU打满
+如果你删除数据量很大时，不加 limit限制一下记录数，容易把cpu打满，导致越删越慢。
+5、锁表
+一次性删除太多数据，可能造成锁表，会有lock wait timeout exceed的错误，所以建议分批操作。

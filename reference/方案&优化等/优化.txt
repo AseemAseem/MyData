@@ -1,0 +1,5 @@
+//使用 InheritableThreadLocal 可以解决父子线程的数据传递问题，但不可以处理在线程池情况下的数据乱串问题
+使用 TransmittableThreadLocal 可以解决线程池下父子线程的数据正确传递
+ThreadLocal<Object> contextHolder = new TransmittableThreadLocal<Object>();
+TTL包装线程池：TtlExecutors.getTtlExecutor(poolTaskExecutor)
+

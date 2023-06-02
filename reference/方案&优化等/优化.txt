@@ -3,3 +3,214 @@
 ThreadLocal<Object> contextHolder = new TransmittableThreadLocal<Object>();
 TTL包装线程池：TtlExecutors.getTtlExecutor(poolTaskExecutor)
 
+//2. 服务日志
+已经公共日志包里面增加了异步日志写入。
+
+<!-- 写文件操作 -->
+ <appender name="fileInfoLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+     <File>${logPath}/info.log</File>
+     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+         <level>info</level>
+     </filter>
+     <encoder class="com.irobotics.aiot.bravo.log.BravoPatternLayoutEncoder">
+         <pattern>%-5level[${APPLICATION}]%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %logger.%method-%L - %msg%n</pattern>
+     </encoder>
+     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <FileNamePattern>${logPath}/info-log-%d{yyyy-MM-dd}.log</FileNamePattern>
+         <maxHistory>30</maxHistory>
+     </rollingPolicy>
+ </appender>
+
+<!-- 异步处理写文件操作 -->
+ <appender name ="asyncInfoFile" class= "ch.qos.logback.classic.AsyncAppender">
+     <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+     <discardingThreshold >0</discardingThreshold>
+     <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+     <queueSize>2048</queueSize>
+     <includeCallerData>true</includeCallerData>
+     <!-- 添加附加的appender,最多只能添加一个 -->
+     <appender-ref ref ="fileInfoLog"/>
+ </appender>
+
+//3. Kafka批量消费	消费者处理大量消息，使用批量消费处理消息，加快消息处理速率
+Kafka集成优化	
+//4. 密码加解密很慢	使用Spring自带的Bcrypt加解密很慢，可以使用MD5+随机盐的方式进行加解密
+user-center调优过程	
+//5. 异步线程ThreadLocal数据乱串
+使用 InheritableThreadLocal 可以解决父子线程的数据传递问题，但不可以处理在线程池情况下的数据乱串问题
+
+使用 TransmittableThreadLocal 可以解决线程池下父子线程的数据正确传递
+
+ThreadLocal<Object> contextHolder = new TransmittableThreadLocal<Object>();
+
+TTL包装线程池：TtlExecutors.getTtlExecutor(poolTaskExecutor)
+
+//6 Feign 远程调用慢
+1 Feign 每次调用慢是因使用 是JDK的httpURLConnection 请求，创建链接，每次都经过TCP三次握手，链接不能重用等问题。所以http的请求所以整体性能并不高
+
+2 需要进行性能优化，通常采用OKHttp，加入连接池技术。
+
+使用OKHttp
+OKHttp 是现在比较常用的一个 HTTP 客户端访问工具，具有以下特点：
+
+支持 SPDY，可以合并多个到同一个主机的请求。
+使用连接池技术减少请求的延迟（如果SPDY是可用的话）。
+使用 GZIP 压缩减少传输的数据量。
+缓存响应避免重复的网络请求。
+相关类：
+
+org.springframework.cloud.openfeign.FeignAutoConfiguration.OkHttpFeignConfiguration
+引入依赖：
+
+<!-- OKHttp 对 Feign 支持 -->
+<dependency>
+    <groupId>io.github.openfeign</groupId>
+    <artifactId>feign-okhttp</artifactId>
+</dependency>
+配置文件：
+
+### Feign 配置
+feign:
+  httpclient:
+    # 是否开启 Http Client
+    enabled: false
+#    # 最大连接数，默认：200
+#    max-connections: 200
+#    # 最大路由，默认：50
+#    max-connections-per-route: 50
+#    # 连接超时，默认：2000/毫秒
+#    connection-timeout: 2000
+#    # 生存时间，默认：900L
+#    time-to-live: 900
+#    # 响应超时的时间单位，默认：TimeUnit.SECONDS
+##    timeToLiveUnit: SECONDS
+  okhttp:
+    enabled: true
+配置类：
+
+@Configuration
+@ConditionalOnClass(Feign.class)
+@AutoConfigureBefore(FeignAutoConfiguration.class)
+public class FeignClientOkHttpConfiguration {
+
+    @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient.Builder()
+                // 连接超时
+                .connectTimeout(20, TimeUnit.SECONDS)
+                // 响应超时
+                .readTimeout(20, TimeUnit.SECONDS)
+                // 写超时
+                .writeTimeout(20, TimeUnit.SECONDS)
+                // 是否自动重连
+                .retryOnConnectionFailure(true)
+                // 连接池
+                .connectionPool(new ConnectionPool())
+                .build();
+    }
+
+}
+注意：
+
+如果发现配置的超时时间无效，可以添加以下配置，因为读取超时配置的时候没有读取上面的okhttp的配置参数，而是从Request中读取。具体配置如下所示:
+
+    @Bean
+    public Request.Options options(){
+        return new Request.Options(60000,60000);
+    }
+
+
+https://www.icode9.com/content-4-628558.html
+
+
+//提升springboot性能
+undertow替换tomcat
+如果将tomcat 换成 undertow，这个性能在 Jmeter 的压测下，undertow 比 tomcat 高一倍。
+
+pom文件：
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+配置项：
+
+server:
+  undertow:
+    max-http-post-size: 0
+# 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程,数量和CPU 内核数目一样即可
+    io-threads: 4
+# 阻塞任务线程池, 当执行类似servlet请求阻塞操作, undertow会从这个线程池中取得线程,它的值设置取决于系统的负载  io-threads*8
+    worker-threads: 32
+# 以下的配置会影响buffer,这些buffer会用于服务器连接的IO操作,有点类似netty的池化内存管理
+# 每块buffer的空间大小,越小的空间被利用越充分
+    buffer-size: 1024
+# 每个区分配的buffer数量 , 所以pool的大小是buffer-size * buffers-per-region
+#   buffers-per-region: 1024 # 这个参数不需要写了
+# 是否分配的直接内存
+    direct-buffers: true
+
+https://www.icode9.com/content-4-628558.html
+
+//ribbon+Nacos 实现负载均衡
+  Nacos-NacosRule负载均衡和服务实例的权重配置
+
+  1、NacosRule负载均衡策略
+  a.优先选择同集群服务实例列表
+  b.本地集群找不到提供者，才去其它集群寻找，并且会报警告
+  c.确定了可用实例列表后，再采用随机负载均衡挑选实例
+
+
+  1.修改order-service中的application.yml，设置集群为HZ：
+
+  spring:
+    application:
+      name: orderservice
+    cloud:
+      nacos:
+        server-addr: tajia-nacos:8848 # nacos服务地址
+        discovery:
+          cluster-name: HZ #order-service服务在杭州集群，调用user-service服务优先选择杭州集群服务实例列表
+
+
+  2.然后在order-service中设置负载均衡的IRule为NacosRule，这个规则优先会寻找与自己同集群的服务：
+
+  userservice:
+    ribbon:
+      NFLoadBalancerRuleClassName: com.alibaba.cloud.nacos.ribbon.NacosRule  # 负载均衡规则
+
+
+  二、Nacos-服务实例的权重配置
+  实际部署中会出现这样的场景：
+  服务器设备性能有差异，部分实例所在机器性能较好，另一些较差，我们希望性能好的机器承担更多的用户请求.
+
+  Nacos提供了权重配置来控制访问频率，权重越大则访问频率越高，实例的权重控制
+  a.Nacos控制台可以设置实例的权重值，0~1之间
+  b.同集群内的多个实例，权重越高被访问的频率越高
+
+  c.权重设置为0则完全不会被访问
+  eg：如把userservice:8081服务权重调整为0，此时userservice:8081服务不承担用户请求，这时做停机操作对用户是无感知操作，我们可以做版本升级，升级结束后权重调小点(如：0.01)，对小部分用户开放等没问题再把权重调大。这样操作对用户是无感知的，平滑升级非常优雅。
+
+
+
+  三
+
+  Nacos-NacosRule负载均衡和服务实例的权重配置
+  https://www.cnblogs.com/linjiqin/p/15357705.html
+
+
+  nacos+ribbon+feign+gateway设计实现灰度方案
+  https://www.cnblogs.com/ITPower/p/13353248.html
+
+
+

@@ -1,0 +1,256 @@
+一 客户端配置
+
+
+pom配置
+<dependency>
+           <groupId>io.seata</groupId>
+           <artifactId>seata-spring-boot-starter</artifactId>
+           <version>1.4.2</version>
+       </dependency>
+       <!--不使用注册中心、配置中心不加-->
+       <dependency>
+           <groupId>com.alibaba.nacos</groupId>
+           <artifactId>nacos-client</artifactId>
+           <version>1.4.2</version>
+       </dependency>
+步骤一
+配置文件和数据库sql的下载：https://github.com/seata/seata/tree/1.4.2/script  （可以从源码获取配置文件和sql，在nacos配置需要）
+
+seata-server 1.4.2的下载地址 : https://github.com/seata/seata/releases   （服务启动）
+
+seata   sql的目录：
+
+
+配置文件：
+
+
+
+在nacos 空间新建seataServer.properties。
+把config.txt内容放到seataServer.properties
+
+
+重要的几个配置的修改：
+
+service.vgroupMapping.my_test_tx_group=default
+service.default.grouplist=10.50.1.127:8091  ## IP+port
+store.mode=db
+store.publicKey=
+store.file.dir=file_store/data
+store.file.maxBranchSessionSize=16384
+store.file.maxGlobalSessionSize=512
+store.file.fileWriteBufferCacheSize=16384
+store.file.flushDiskMode=async
+store.file.sessionReloadReadSize=100
+store.db.datasource=druid
+store.db.dbType=mysql
+store.db.driverClassName=com.mysql.jdbc.Driver
+store.db.url=jdbc:mysql://39.108.173.241:3800/seata?useUnicode=true&rewriteBatchedStatements=true
+store.db.user=root
+store.db.password=ruishi123
+步骤二
+seata-server-1.4.2 启动的文件修改（file.conf  和  registry.conf）
+
+file.conf：
+
+## transaction log store, only used in seata-server
+store {
+  ## store mode: file、db、redis
+  mode = "db"
+  ## rsa decryption public key
+  publicKey = ""
+  # 省略不用修改的
+
+  ## database store property
+  db {
+    ## the implement of javax.sql.DataSource, such as DruidDataSource(druid)/BasicDataSource(dbcp)/HikariDataSource(hikari) etc.
+    datasource = "druid"
+    ## mysql/oracle/postgresql/h2/oceanbase etc.
+    dbType = "mysql"
+    driverClassName = "com.mysql.jdbc.Driver"
+    ## driverClassName = "com.mysql.cj.jdbc.Driver"
+    ## if using mysql to store the data, recommend add rewriteBatchedStatements=true in jdbc connection param
+    url = "jdbc:mysql://39.108.173.241:3800/seata?rewriteBatchedStatements=true"
+    user = "root"
+    password = "ruishi123"
+    minConn = 5
+    maxConn = 100
+    globalTable = "global_table"
+    branchTable = "branch_table"
+    lockTable = "lock_table"
+    queryLimit = 100
+    maxWait = 5000
+  }
+ # 省略不用修改的
+}
+
+
+registry.conf：
+
+registry {
+  # file 、nacos 、eureka、redis、zk、consul、etcd3、sofa
+  type = "nacos"
+
+  nacos {
+    application = "seata-server"
+    serverAddr = "10.50.1.127:8848"
+    group = "SEATA_GROUP"
+    namespace = "mall"
+    cluster = "default"
+    username = ""
+    password = ""
+  }
+  # 省略不用修改的
+}
+
+config {
+  # file、nacos 、apollo、zk、consul、etcd3
+  type = "nacos"
+
+  nacos {
+    serverAddr = "10.50.1.127:8848"
+    namespace = "seataConfig"
+    group = "SEATA_GROUP"
+    username = ""
+    password = ""
+    dataId = "seataServer.properties"
+  }
+  # 省略不用修改的
+}
+步骤三：
+maven包的引入：
+
+<dependency>
+    <groupId>io.seata</groupId>
+    <artifactId>seata-spring-boot-starter</artifactId>
+    <version>1.4.2</version>
+</dependency>
+<!--多数据源-->
+<dependency>
+   <groupId>com.baomidou</groupId>
+   <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+   <version>3.5.2</version>
+</dependency>
+
+
+项目配置文件yaml：
+
+spring:
+  datasource:
+    dynamic:
+      seata: true
+      seata-mode: AT
+      primary: master
+      strict: false
+      datasource:
+        master:
+          url: jdbc:mysql://39.108.173.241:3800/mall_pay?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          username: root
+          password: ruishi123
+          hikari:
+            poolName: HikariPool
+            maximumPoolSize: 10
+            minimumIdle: 2
+            idleTimeout: 15000
+            maxLifetime: 500000
+        slave:
+          url: jdbc:mysql://39.108.173.241:3800/mall_sms?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          username: root
+          password: ruishi123
+          hikari:
+            poolName: HikariPool
+            maximumPoolSize: 10
+            minimumIdle: 2
+            idleTimeout: 15000
+            maxLifetime: 500000
+
+seata:
+  enabled: true
+  application-id: seata-server
+  tx-service-group: my_test_tx_group
+  enable-auto-data-source-proxy: false
+  service:
+    vgroupMapping:
+      my_test_tx_group: default
+    grouplist:
+      default: 10.50.1.127:8091
+  config:
+    type: nacos
+    nacos:
+      application: seata-server
+      serverAddr: 127.0.0.1:8848
+      namespace: seataConfig
+      group: SEATA_GROUP
+      data-id: seataServer.properties
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      serverAddr: 127.0.0.1:8848
+      namespace: mall
+代码编写：
+
+@Override
+@GlobalTransactional
+public void testDb(int p) {
+    SmsHomeBrandEntity smsHomeBrand = new SmsHomeBrandEntity();
+    String id = snowflakeConfig.snowflakeId();
+    smsHomeBrand.setId(id);
+    smsHomeBrand.setBrandId("111");
+    smsHomeBrand.setBrandName("test");
+    //数据库 mall_sms
+    smsHomeBrandService.saveTest(smsHomeBrand);
+
+    RefundGoodsDetailLogEntity refundGoodsDetailLogEntity = new RefundGoodsDetailLogEntity();
+    refundGoodsDetailLogEntity.setId(id);
+    refundGoodsDetailLogEntity.setRefundId(11111L);
+    //数据库 mall_pay
+    refundGoodsDetailLogService.save(refundGoodsDetailLogEntity);
+    // 根据传参数造成异常
+    if (0 == p) {
+        int a = 1 / 0;
+    }
+}
+
+
+
+
+常见问题：
+
+1、使用mybatis-plus动态数据源组件后undolog无法删除怎么办啊
+
+dynamic-datasource-spring-boot-starter 组件内部开启seata后会自动使用DataSourceProxy来包装DataSource,所以需要以下方式来保持兼容
+
+1.如果你引入的是seata-all,请不要使用@EnableAutoDataSourceProxy注解.
+
+2、如果你引入的是seata-spring-boot-starter 请关闭自动代理 seata: enable-auto-data-source-proxy: false 此答案整理自钉钉群“3群-Seata 开源讨论群”
+
+
+
+
+
+2、解决方法来源于：LocalDateTime转换异常，https://github.com/seata/seata/issues/3620 （官方bug）
+
+https://github.com/seata/seata.github.io/pull/325#issuecomment-898865260
+
+1.https://github.com/seata/seata/pull/3228/files 或者看这个pr的做法,通过spi,自定义你的jackson序列化器
+2.查看你代码的实体类时间属性对应的数据库字段类型如果是datetime改成timestamp
+3.修改seata的换序列化方式 配置中心中配置client.undo.logSerialization=kryo,client端再引入kryo的依赖包（ruoyi-cloud项目放到ruoyi-common-core/pom.xml下即可）
+
+kryo依赖如下（版本自行选择）
+<dependency>
+<groupId>com.esotericsoftware.kryo</groupId>
+<artifactId>kryo</artifactId>
+<version>2.24.0</version>
+</dependency>
+<dependency>
+<groupId>com.esotericsoftware</groupId>
+<artifactId>kryo</artifactId>
+<version>4.0.2</version>
+</dependency>
+<dependency>
+<groupId>de.javakaffee</groupId>
+<artifactId>kryo-serializers</artifactId>
+<version>0.44</version>
+</dependency>

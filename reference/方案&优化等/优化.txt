@@ -212,5 +212,7 @@ https://www.icode9.com/content-4-628558.html
   nacos+ribbon+feign+gateway设计实现灰度方案
   https://www.cnblogs.com/ITPower/p/13353248.html
 
-
+//10亿条数据大表删除测试：
+8.1 重命名表耗时 0.11 sec
+8.2 drop表 9.22 sec
 

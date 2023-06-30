@@ -8,6 +8,19 @@
 全部数据导出性能问题，只能一个sql查询好再返回了，暂时不知道咋避免group和join
 
 查询实现sql：
+SELECT u.*, p.user_id, p.properties
+FROM user u
+JOIN (
+select user_id, group_concat(field_name,'=',field_value) as properties
+from   user_properties
+where user_id in (1,2,3)
+group by user_id
+)p ON u.id = p.user_id
+
+where properties like "%age=18%" and properties like "%heign=180%" and user_id = 1
+
+
+查询实现sql：
 
 select u.* , p.properties from user u
 left join

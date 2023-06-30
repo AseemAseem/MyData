@@ -1,0 +1,48 @@
+
+优点
+灵活附加任意字段
+缺点：
+如果附加字段作为查询条件，无法避免group和join
+
+分页性能问题，涉及group和join，可以先主表分页后再用java代码附加
+全部数据导出性能问题，只能一个sql查询好再返回了，暂时不知道咋避免group和join
+
+查询实现sql：
+
+select u.* , p.properties from user u
+left join
+(
+	select user_id, CONCAT("[", group_concat(JSON_OBJECT("name", field_name,"value",field_value)), "]") as properties
+	from   user_properties
+	where user_id in (1,2,3)
+	group by user_id
+) p
+on p.user_id = u.id
+
+
+表结构和数据：
+
+CREATE TABLE `user`  (
+  `id` int NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `age` int NULL DEFAULT NULL,
+  `create_time` datetime(0) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+INSERT INTO `user` VALUES (1, 'aaa', NULL, NULL);
+INSERT INTO `user` VALUES (2, 'bbb', NULL, NULL);
+INSERT INTO `user` VALUES (3, 'ccc', NULL, NULL);
+
+CREATE TABLE `user_properties`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NULL DEFAULT NULL,
+  `field_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `field_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+INSERT INTO `user_properties` VALUES (1, 1, 'age', '18');
+INSERT INTO `user_properties` VALUES (2, 2, 'heign', '185');
+INSERT INTO `user_properties` VALUES (3, 1, 'heign', '180');
+

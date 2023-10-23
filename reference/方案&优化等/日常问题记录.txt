@@ -1,0 +1,50 @@
+
+分类：MES重构的问题
+
+问题：原来的有些表数据量太大，1亿到3亿
+方法：分表，按年、按月分拆分表，分成当前表和历史表
+
+问题：jdk版本是1.8
+方法：升级成jdk17
+<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>17</java.version>
+        <!-- spring cloud alibaba 版本 -->
+        <spring.cloud.alibaba.version>2022.0.0.0-RC1</spring.cloud.alibaba.version>
+        <!-- spring cloud版本 -->
+        <spring-cloud.version>2022.0.0</spring-cloud.version>
+        <hutool.version>5.8.18</hutool.version>
+        <pagehelper.version>5.3.2</pagehelper.version>
+        <springboot-admin.version>3.0.2</springboot-admin.version>
+        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
+        <fastjson.version>1.2.83</fastjson.version>
+        <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
+        <knife4j-openapi3.version>4.0.0</knife4j-openapi3.version>
+        <mybatis.version>3.0.1</mybatis.version>
+        <javax.version>4.0.1</javax.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <logstash.version>7.3</logstash.version>
+</properties>
+
+问题：原来不是springcloud alibaba项目
+方法：引入公共包（alibaba、mybatis、swagger、logstash等等），去除多余springboot依赖，变成springcloud alibaba项目
+
+问题：binlog配置的内存不够大，复制失败，分表时有的表有两三亿数据。
+方法：调大或关闭binlog日志。
+
+问题：旧代码有50多g的缓存，用于报表查询
+方法：根据业务改成统计表实现
+
+问题：生产环境不能调试
+方法：用wireshark等抓包和kibana看日志看传参等信息
+
+问题：如何有效回顾，总结经验教训
+方法：开会，互相指出各自的、自己的、项目的、相关人员的等问题，列出来，探讨解决方法
+
+
+问题：碰到上游数据导致不好测试的问题
+方法：开发、产品、上游拉一个小群，专门解决这个问题
+

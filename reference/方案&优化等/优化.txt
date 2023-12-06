@@ -224,3 +224,6 @@ https://www.icode9.com/content-4-628558.html
 //数据库敏感数据加密
 mybatis拦截器，保存、查询时加解密
 mysql自带的aes加解密函数
+
+// springboot、spring项目轻量化，本地启动速度优化
+看pom引入了啥项目、看所有日志找到更多启用的项目，找到这些项目的启动类，把开关放到本地配置文件中关闭掉，本地不启动

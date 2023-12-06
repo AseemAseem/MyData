@@ -1,4 +1,5 @@
 售后总逻辑：抓资金流，钱没退回去则交易成功
 
-衫川iot？more than 2 million
+iot用mqtt和netty？超过 2 百万了，肯定mqtt比netty好
+netty做轻量级的
 

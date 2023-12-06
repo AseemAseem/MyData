@@ -41,11 +41,7 @@ spring:
       request-timeout: 300000
 2. 消费者批量消费
 2.1 配置类
-/**
- * @author guoliang.wu
- * @date 221/9/7 11:10
- * @desc kafka生产者配置类
- */
+
 @Component
 public class KafkaConsumerConfiguration {
 

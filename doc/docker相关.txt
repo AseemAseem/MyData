@@ -1,0 +1,49 @@
+windows下，下载官方的docker desktop就行了
+
+mysql
+
+docker pull mysql:5.7.26
+
+docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7.26
+
+
+nacos
+
+docker pull nacos/nacos-server:2.0.3
+
+docker run -d --name nacos -p 8848:8848 -p 9848:9848 -p 9849:9849 -e MODE=standalone nacos/nacos-server:2.0.3
+注意，nacos2.0.1版本新增了两个端口，所以8848、9848、9849，共三个端口需要映射
+
+
+查看日志
+docker logs mysql
+
+实时查看日志
+docker logs -f mysql
+
+查询30分钟内的日志
+docker logs --since 30m mysql
+
+停止容器
+docker stop mysql
+
+启动容器
+docker start mysql
+
+查看所有容器
+docker ps -a
+
+查看启动中的容器
+docker ps
+
+删除容器
+docker rm mysql
+
+进入容器
+docker exec -it mysql bash
+
+退出容器
+exit
+
+查看端口是否在使用
+netstat -ano|findStr 8848

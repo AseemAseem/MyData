@@ -1,4 +1,4 @@
-windows下，下载官方的docker desktop就行了
+windows下，下载官方的docker desktop安装即可使用docker。再安装Windows WSL 貌似是优化虚拟机
 docker run会自动下载镜像，不用写下载代码
 
 redis

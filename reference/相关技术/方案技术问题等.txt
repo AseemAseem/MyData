@@ -69,3 +69,5 @@ mysql主从，深圳主库 越南从库 主从同步失败
 电商mall-多数据源下事务
 @DSTransactional com.baomidou.dynamic.datasource.annotation
 
+电商mall mq改订单为已发货，后面看，订单状态还是待发货
+订单已发货后还有收到微信支付完成的消息，mq会改订单为待发货

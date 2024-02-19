@@ -66,3 +66,6 @@
 mysql主从，深圳主库 越南从库 主从同步失败
 新增会同步但是修改不会，跟同步策略有关系
 
+电商mall-多数据源下事务
+@DSTransactional com.baomidou.dynamic.datasource.annotation
+

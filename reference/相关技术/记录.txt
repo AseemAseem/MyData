@@ -75,3 +75,4 @@ mysql主从，深圳主库 越南从库 主从同步失败
 mes系统，excel导出乱码
 使用了@RequestBody导致
 
+mes系统，多线程解析bom树形结构，自定义线程池工具类，callable

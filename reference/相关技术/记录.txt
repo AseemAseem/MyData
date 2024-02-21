@@ -76,3 +76,4 @@ mes系统，excel导出乱码
 使用了@RequestBody导致
 
 mes系统，多线程解析bom树形结构，自定义线程池工具类，callable
+erp的bom结构 20分钟 到 3分钟

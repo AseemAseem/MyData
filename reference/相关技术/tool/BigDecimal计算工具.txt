@@ -1,0 +1,21 @@
+搜工具类用，更好
+如： class BigNum
+
+    /**
+     * 加法计算（result = x + y）
+     *
+     * @param x 被加数（可为null）
+     * @param y 加数 （可为null）
+     * @return 和 （可为null）
+     * @author dengcs
+     */
+    public static BigDecimal add(BigDecimal x, BigDecimal y) {
+        if (x == null) {
+            return y;
+        }
+        if (y == null) {
+            return x;
+        }
+        return x.add(y);
+    }
+

@@ -103,4 +103,6 @@ erp的bom结构 20分钟 到 3分钟
 有一个redis数据分片有问题
 
 --大数据startRockets 同步mysql数据（同步10g数据进startRockets100秒左右），极速查询分析。存算分离架构。
---大数据flink 可支持各种存储库数据同步，主流数据库都支持，sqlserver、mysql、kafka等。整库同步目前版本只支持部分数据库。
+--flink
+ 用于数据恢复，mysql数据恢复到elasticsearch，方便快捷（ai标注系统断电后丢数据，用的此方法恢复）
+ 大数据，可支持各种存储库数据同步，主流数据库都支持，sqlserver、mysql、kafka等。整库同步目前版本只支持部分数据库。

@@ -1,0 +1,15 @@
+
+---- linux
+使用root权限执行命令
+sudo docker images
+
+-- 文件上传，上传到当前目录页
+使用命令，rz
+或xshell界面直接拖拉文件上去
+或使用MobaXterm，左侧界面进入指定目录后点上传下载按钮
+
+查看文件的md5信息
+md5sum md5sum mark-0.0.1-SNAPSHOT.jar
+
+
+

@@ -1,3 +1,23 @@
+
+管理员复制文件到容器
+sudo docker cp /home/xiaozy/mark-0.0.1-SNAPSHOT.jar mark-service3:/
+
+管理员重启容器
+sudo docker restart mark-service3
+
+管理员查看容器的日志
+sudo docker logs -f -n 100 mark-service3
+
+管理员进入正在运行的容器
+sudo docker exec -it 3114014341af /bin/bash
+
+查看容器文件
+ls -l
+
+列出所有容器（包括停止的）
+docker ps -a
+
+
 windows下，下载官方的docker desktop安装即可使用docker。再安装Windows WSL 貌似是优化虚拟机
 docker run会自动下载镜像，不用写下载代码
 
@@ -17,6 +37,8 @@ docker logs mysql
 
 实时查看日志
 docker logs -f mysql
+
+docker logs -f -n 100 mark-service3
 
 查询30分钟内的日志
 docker logs --since 30m mysql
@@ -47,3 +69,6 @@ netstat -ano|findStr 8848
 
 删除镜像
 docker rmi e9c354083de7
+
+查看Docker系统信息
+docker info

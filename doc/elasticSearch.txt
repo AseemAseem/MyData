@@ -1,0 +1,76 @@
+
+-- es
+
+按条件修改
+
+GET imageinfo2024/_update_by_query
+{
+  "query": {
+    "term": {
+      "dir": 2024072501
+    }
+  },
+  "script": {
+    "source": "ctx._source['imageKind'] = '0'"
+  }
+}
+
+
+按条件查询
+
+GET imageinfo2024/_search
+{
+  "query": {
+    "match": {
+      "dir": 2024072501
+    }
+  }
+}
+
+所有索引
+GET _cat/indices
+
+索引设置
+GET taskimage2024/_settings
+
+索引所有类型
+GET taskimage2024/_mapping
+
+
+查询某个sn的记录
+GET taskimage2024/_search
+{
+  "query":{
+     "match":{
+       "sn": "DM4X3ISZ2404A00016"
+     }
+  },
+  "from": 0,
+  "size": 100
+}
+
+更新索引
+PUT taskimage2024/_mapping
+{
+  "properties": {
+    "annotatorType": {
+      "type": "keyword"
+    }
+  }
+}
+
+更新某个值
+POST /taskimage2024/_update/1818975025629954053
+{
+  "doc" : {
+    "annotatorType" : "AiModelMarked"
+  }
+}
+
+删除某个索引的所有记录
+POST imageinfoiou/_delete_by_query
+{
+  "query": {
+    "match_all": {}
+  }
+}

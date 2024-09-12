@@ -106,3 +106,5 @@ erp的bom结构 20分钟 到 3分钟
 --flink
  用于数据恢复，mysql数据恢复到elasticsearch，方便快捷（ai标注系统断电后丢数据，用的此方法恢复）
  大数据，可支持各种存储库数据同步，主流数据库都支持，sqlserver、mysql、kafka等。整库同步目前版本只支持部分数据库。
+
+-- 电商小程序，多数据源事务，使用注解@DSTransactional

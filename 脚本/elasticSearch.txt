@@ -1,5 +1,19 @@
 
 -- es
+根据字段排序
+
+GET systemlog/_search
+{
+  "size": 10,
+  "sort": [
+    {
+      "happenedTime": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+
 
 按条件修改
 

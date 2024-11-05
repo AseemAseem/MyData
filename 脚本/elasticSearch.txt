@@ -88,3 +88,16 @@ POST imageinfoiou/_delete_by_query
     "match_all": {}
   }
 }
+
+查询某个字段并去重，以dir为例
+
+GET imageinfo2024/_search
+{
+  "_source":["dir"],
+  "collapse": {
+    "field": "dir"
+  },
+  "query": {
+    "match_all": {}
+  }
+}

@@ -80,3 +80,5 @@ a959d9a47449     elasticsearch   0.23%    21.73GiB / 62.59GiB   34.71%     13.5G
 be0ced1ed974     mark-service    0.04%    7.042GiB / 62.59GiB   11.25%     38.3GB / 34.2GB     328MB / 0B           175
 bd1cd1fef845     mysql_174       0.06%    1.89GiB / 62.59GiB    3.02%      19.4GB / 20.8GB     12GB / 320GB         100
 7e08d6b1e0b9     redis           89.00%   15GiB / 62.59GiB      23.96%     2.94GB / 40.3GB     4.01GB / 6.66TB      5
+
+-- 东西多，做出来的东西是否是想要的

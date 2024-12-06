@@ -1,5 +1,13 @@
+新增字段mapping
+PUT /taskimage2023/_mapping
+{
+ "properties": {
+   "spendTime": {
+	 "type": "long"
+   }
+ }
+}
 
--- es
 根据字段排序
 
 GET systemlog/_search

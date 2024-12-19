@@ -1,3 +1,27 @@
+
+多字段查询
+GET taskimage2024/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "taskId": "2213"
+          }
+        },
+        {
+          "term": {
+            "imageId": "1864878802778398720"
+          }
+        }
+      ]
+    }
+  }
+}
+
+
+
 新增字段mapping
 PUT /taskimage2023/_mapping
 {

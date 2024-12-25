@@ -1,3 +1,9 @@
+sql查询
+POST _sql?format=txt
+{
+  "query": "select * from t_test limit 10"
+}
+
 
 多字段查询
 GET taskimage2024/_search

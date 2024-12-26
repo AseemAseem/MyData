@@ -1,3 +1,44 @@
+
+多字段，and、or查询
+GET taskimage2024/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "taskId": "1987"
+          }
+        }
+      ],
+      "should": [
+        {
+          "term": {
+            "markLabels": "1012"
+          }
+        },
+        {
+          "regexp": {
+            "markLabels": "^1012[,][0-9,]+"
+          }
+        },
+        {
+          "regexp": {
+            "markLabels": "[0-9]+[,]3008$"
+          }
+        },
+        {
+          "regexp": {
+            "markLabels": "[0-9,]+[,]3008[,][0-9,]+"
+          }
+        }
+      ]
+    }
+  }
+}
+
+
+
 sql查询
 POST _sql?format=txt
 {

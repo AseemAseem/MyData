@@ -21,6 +21,7 @@ docker ps -a
 windows下，下载官方的docker desktop安装即可使用docker。再安装Windows WSL 貌似是优化虚拟机
 docker run会自动下载镜像，不用写下载代码
 
+
 redis
 docker run --name redis -p 6379:6379 -d redis:5.0
 
@@ -72,3 +73,37 @@ docker rmi e9c354083de7
 
 查看Docker系统信息
 docker info
+
+==== 部署 Java 项目到 Docker 的基本步骤和命令
+
+1. 准备 Dockerfile
+# 使用官方的 OpenJDK 镜像作为基础镜像
+FROM openjdk:17-jdk-alpine
+
+# 设置工作目录
+WORKDIR /app
+
+# 将打包好的 JAR 文件复制到容器中
+COPY target/order.jar /app/order.jar
+
+# 暴露应用运行的端口（假设是8080）
+EXPOSE 8080
+
+# 启动命令
+ENTRYPOINT ["java", "-jar", "/app/order.jar"]
+
+2. 构建 Docker 镜像
+docker build -t order-app:latest .
+
+3. 运行 Docker 容器
+（可选）不挂载数据
+docker run -d --name order-app -p 8080:8080 order-app:latest
+（可选）挂载卷以持久化数据或配置
+docker run -d --name order-app -p 8080:8080 -v /path/to/logs:/app/logs order-app:latest
+（可选）设置环境变量
+docker run -d --name order-app -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod order-app:latest
+
+4. 重启 Docker 容器
+docker restart order-app
+
+
